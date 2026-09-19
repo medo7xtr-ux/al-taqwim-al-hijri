@@ -1,5 +1,3 @@
-// Fallback for using MaterialIcons on Android and web.
-
 import MaterialIcons from "@expo/vector-icons/MaterialIcons";
 import { SymbolWeight, SymbolViewProps } from "expo-symbols";
 import { ComponentProps } from "react";
@@ -7,35 +5,7 @@ import { OpaqueColorValue, type StyleProp, type TextStyle } from "react-native";
 
 type IconMapping = Record<SymbolViewProps["name"], ComponentProps<typeof MaterialIcons>["name"]>;
 type IconSymbolName = keyof typeof MAPPING;
-
-/**
- * Add your SF Symbols to Material Icons mappings here.
- * - see Material Icons in the [Icons Directory](https://icons.expo.fyi).
- * - see SF Symbols in the [SF Symbols](https://developer.apple.com/sf-symbols/) app.
- */
 const MAPPING = {
-  "house.fill": "home",
-  "paperplane.fill": "send",
-  "chevron.left.forwardslash.chevron.right": "code",
-  "chevron.right": "chevron-right",
-} as IconMapping;
-
-/**
- * An icon component that uses native SF Symbols on iOS, and Material Icons on Android and web.
- * This ensures a consistent look across platforms, and optimal resource usage.
- * Icon `name`s are based on SF Symbols and require manual mapping to Material Icons.
- */
-export function IconSymbol({
-  name,
-  size = 24,
-  color,
-  style,
-}: {
-  name: IconSymbolName;
-  size?: number;
-  color: string | OpaqueColorValue;
-  style?: StyleProp<TextStyle>;
-  weight?: SymbolWeight;
-}) {
-  return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />;
-}
+  "house.fill": "home", "calendar": "calendar-today", "gearshape.fill": "settings", "settings": "settings", "language": "language", "dark-mode": "dark-mode", "notifications-active": "notifications-active", "volume-up": "volume-up", "location-on": "location-on", "location.fill": "location-on", "near-me": "near-me", "my-location": "my-location", "bell.fill": "notifications-active", "bell.slash.fill": "notifications-off", "notifications-none": "notifications-none", "chevron.left": "chevron-left", "chevron.right": "chevron-right", "chevron-left": "chevron-left", "chevron-right": "chevron-right", "auto-awesome": "auto-awesome", "wb-twilight": "wb-twilight", "wb-sunny": "wb-sunny", "light-mode": "light-mode", "wb-cloudy": "wb-cloudy", "brightness-3": "brightness-3", "nights-stay": "nights-stay", "code": "code", "paperplane.fill": "send", "chevron.right.forwardslash.chevron.left": "code",
+} as unknown as IconMapping;
+export function IconSymbol({ name, size = 24, color, style }: { name: IconSymbolName; size?: number; color: string | OpaqueColorValue; style?: StyleProp<TextStyle>; weight?: SymbolWeight }) { return <MaterialIcons color={color} size={size} name={MAPPING[name]} style={style} />; }

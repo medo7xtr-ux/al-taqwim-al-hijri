@@ -1,0 +1,3 @@
+import * as Notifications from "expo-notifications";
+import type { Prayer } from "./prayer";
+export async function schedulePrayerAlerts(prayers: Prayer[], enabled: boolean, sound: boolean) { await Notifications.cancelAllScheduledNotificationsAsync(); if (!enabled) return; for (const prayer of prayers.filter((item) => item.key !== "sunrise")) { const [hour, minute] = prayer.time.split(":").map(Number); await Notifications.scheduleNotificationAsync({ content: { title: `حان الآن وقت ${prayer.ar}`, body: `حيّ على الصلاة • ${prayer.time}`, sound: sound ? "default" : undefined, data: { prayer: prayer.key } }, trigger: ({ hour, minute, repeats: true } as any) }); } }
