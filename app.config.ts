@@ -28,8 +28,8 @@ const schemeFromBundleId = `manus${timestamp}`;
 
 const env = {
   // App branding - update these values directly (do not use env vars)
-  appName: "نور | مواقيت الصلاة والتقويم الهجري",
-  appSlug: "noor-prayer-app",
+  appName: "Hijri | Islamic Calendar",
+  appSlug: "hijri-app",
   // S3 URL of the app logo - set this to the URL returned by generate_image when creating custom logo
   // Leave empty to use the default icon from assets/images/icon.png
   logoUrl: "",
@@ -41,7 +41,7 @@ const env = {
 const config: ExpoConfig = {
   name: env.appName,
   slug: env.appSlug,
-  version: "1.0.0",
+  version: "1.1.0",
   orientation: "portrait",
   icon: "./assets/images/icon.png",
   scheme: env.scheme,
@@ -56,8 +56,8 @@ const config: ExpoConfig = {
   },
   android: {
     adaptiveIcon: {
-      backgroundColor: "#E6F4FE",
-      foregroundImage: "./assets/images/android-icon-foreground.png",
+      backgroundColor: "#0C6B58",
+      foregroundImage: "./assets/images/icon.png",
       backgroundImage: "./assets/images/android-icon-background.png",
       monochromeImage: "./assets/images/android-icon-monochrome.png",
     },

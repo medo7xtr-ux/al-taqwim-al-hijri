@@ -14,12 +14,12 @@ const gold = "#d9aa55";
 export default function HomeScreen() {
   const router = useRouter();
   const [english, setEnglish] = useState(false);
-  const [coords, setCoords] = useState({ latitude: 24.7136, longitude: 46.6753 });
-  const [locationName, setLocationName] = useState("الرياض، السعودية");
+  const [coords, setCoords] = useState({ latitude: 15.3694, longitude: 44.1910 });
+  const [locationName, setLocationName] = useState("صنعاء، اليمن");
   const [loading, setLoading] = useState(false);
   const [alerts, setAlerts] = useState(true);
   const [sound, setSound] = useState(true);
-  const [prayers, setPrayers] = useState<Prayer[]>(calculatePrayers(24.7136, 46.6753));
+  const [prayers, setPrayers] = useState<Prayer[]>(calculatePrayers(15.3694, 44.1910));
   const [now, setNow] = useState(new Date());
 
   useEffect(() => { const timer = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(timer); }, []);
@@ -48,7 +48,7 @@ export default function HomeScreen() {
 
   return <ScreenContainer edges={["top", "left", "right"]} containerClassName="bg-[#f4f7f3]" className="px-5">
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
-      <View style={styles.topRow}><View><Text style={styles.kicker}>{english ? "ASSALAMU ALAIKUM" : "السلام عليكم"}</Text><Text style={styles.title}>{english ? "Noor" : "نور"}</Text></View><Pressable onPress={() => router.push("/settings")} style={styles.iconButton}><IconSymbol name={"settings" as any} size={23} color={green} /></Pressable></View>
+      <View style={styles.topRow}><View><Text style={styles.kicker}>{english ? "HIJRI • PRAYER & CALENDAR" : "التقويم الهجري • مواقيت الصلاة"}</Text><Text style={styles.title}>{"Hijri"}</Text></View><Pressable onPress={() => router.push("/settings")} style={styles.iconButton}><IconSymbol name={"settings" as any} size={23} color={green} /></Pressable></View>
       <View style={styles.hero}><View style={styles.moon}><Text style={styles.moonText}>☾</Text></View><Text style={styles.hijri}>{hijriLabel(now, english)}</Text><Text style={styles.gregorian}>{todayGregorianLabel(english)}</Text><View style={styles.locationRow}><IconSymbol name={"location-on" as any} size={16} color={gold} /><Text style={styles.location}>{locationName}</Text><Pressable onPress={locate} style={styles.refresh}>{loading ? <ActivityIndicator size="small" color={green} /> : <IconSymbol name={"my-location" as any} size={16} color={green} />}</Pressable></View></View>
       <View style={styles.nextCard}><View><Text style={styles.nextLabel}>{english ? "NEXT PRAYER" : "الصلاة القادمة"}</Text><Text style={styles.nextName}>{english ? next.en : next.ar}</Text></View><Text style={styles.nextTime}>{next.time}</Text></View>
       <View style={styles.sectionHeader}><Text style={styles.sectionTitle}>{english ? "Prayer times" : "مواقيت الصلاة"}</Text><Pressable onPress={() => router.push("/calendar")}><Text style={styles.link}>{english ? "Calendar" : "التقويم"}</Text></Pressable></View>

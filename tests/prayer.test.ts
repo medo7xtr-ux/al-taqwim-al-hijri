@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { calculatePrayers, gregorianToHijri, hijriLabel } from "../lib/prayer";
+import { bearingLabel, calculateDistanceToKaaba, calculateQiblaBearing, getQiblaRotation } from "../lib/qibla";
 
 describe("prayer calculations", () => {
   it("converts a known Gregorian date to a stable Hijri date", () => {
@@ -18,5 +19,17 @@ describe("prayer calculations", () => {
     expect(prayers.map((item) => item.key)).toEqual(["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"]);
     expect(prayers.every((item) => /^\d{2}:\d{2}$/.test(item.time))).toBe(true);
     expect(prayers.every((item) => item.ar.length > 0 && item.en.length > 0)).toBe(true);
+  });
+
+  it("calculates a stable Qibla bearing for Sana'a", () => {
+    const bearing = calculateQiblaBearing(15.3694, 44.191);
+    expect(bearing).toBeGreaterThan(300);
+    expect(bearing).toBeLessThan(330);
+    expect(bearingLabel(bearing)).toContain("شمال");
+  });
+
+  it("normalizes the device-relative Qibla rotation and calculates distance", () => {
+    expect(getQiblaRotation(10, 350)).toBe(20);
+    expect(calculateDistanceToKaaba(21.4225, 39.8262)).toBeLessThan(0.01);
   });
 });
