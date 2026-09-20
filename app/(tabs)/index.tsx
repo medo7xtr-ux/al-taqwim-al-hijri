@@ -7,12 +7,14 @@ import { ScreenContainer } from "@/components/screen-container";
 import { IconSymbol } from "@/components/ui/icon-symbol";
 import { calculatePrayers, hijriLabel, todayGregorianLabel, type Prayer } from "@/lib/prayer";
 import { schedulePrayerAlerts } from "@/lib/notifications";
+import { usePrayerSettings, type CityOption } from "@/lib/prayer-settings";
 
 const green = "#0c6b58";
 const gold = "#d9aa55";
 
 export default function HomeScreen() {
   const router = useRouter();
+  const prayerSettings = usePrayerSettings();
   const [english, setEnglish] = useState(false);
   const [coords, setCoords] = useState({ latitude: 15.3694, longitude: 44.1910 });
   const [locationName, setLocationName] = useState("صنعاء، اليمن");
@@ -25,6 +27,13 @@ export default function HomeScreen() {
 
   useEffect(() => { const timer = setInterval(() => setNow(new Date()), 30000); return () => clearInterval(timer); }, []);
   useEffect(() => { schedulePrayerAlerts(prayers, alerts, sound).catch(() => undefined); }, [prayers, alerts, sound]);
+  useEffect(() => {
+    if (!prayerSettings.hydrated) return;
+    setCoords({ latitude: prayerSettings.city.latitude, longitude: prayerSettings.city.longitude });
+    setLocationName(prayerSettings.city.nameAr);
+    setUsingCurrentLocation(prayerSettings.locationMode === "current");
+    setPrayers(calculatePrayers(prayerSettings.city.latitude, prayerSettings.city.longitude, new Date(), prayerSettings.method));
+  }, [prayerSettings.hydrated, prayerSettings.city.id, prayerSettings.method, prayerSettings.locationMode]);
   const next = useMemo(() => { const current = now.getHours() * 60 + now.getMinutes(); return prayers.find((p) => { const [h, m] = p.time.split(":").map(Number); return h * 60 + m > current; }) ?? prayers[0]; }, [now, prayers]);
 
   const locate = async () => {
@@ -34,9 +43,11 @@ export default function HomeScreen() {
       if (permission.status !== "granted") { Alert.alert(english ? "Location permission" : "إذن الموقع", english ? "Please allow location access in settings." : "يرجى السماح بالوصول إلى الموقع من الإعدادات."); return; }
       const position = await Location.getCurrentPositionAsync({ accuracy: Location.Accuracy.Balanced });
       const nextCoords = { latitude: position.coords.latitude, longitude: position.coords.longitude };
-      setCoords(nextCoords); setPrayers(calculatePrayers(nextCoords.latitude, nextCoords.longitude));
+      setCoords(nextCoords); setPrayers(calculatePrayers(nextCoords.latitude, nextCoords.longitude, new Date(), prayerSettings.method));
       const places = await Location.reverseGeocodeAsync(nextCoords);
-      const place = places[0]; setLocationName([place?.city, place?.country].filter(Boolean).join("، ") || "موقعك الحالي");
+      const place = places[0]; const cityNameAr = [place?.city, place?.country].filter(Boolean).join("، ") || "موقعك الحالي"; setLocationName(cityNameAr);
+      const currentCity: CityOption = { id: "current", nameAr: cityNameAr, nameEn: [place?.city, place?.country].filter(Boolean).join(", ") || "Current location", latitude: nextCoords.latitude, longitude: nextCoords.longitude };
+      prayerSettings.useCurrentLocation(currentCity);
       setUsingCurrentLocation(true);
     } catch { setUsingCurrentLocation(false); Alert.alert(english ? "Unable to locate" : "تعذر تحديد الموقع", english ? "Using the default location." : "سيتم استخدام الموقع الافتراضي."); }
     finally { setLoading(false); }
