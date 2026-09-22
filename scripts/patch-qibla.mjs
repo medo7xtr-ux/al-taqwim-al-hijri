@@ -1,0 +1,14 @@
+import fs from "node:fs";
+const path = "app/(tabs)/qibla.tsx";
+let s = fs.readFileSync(path, "utf8");
+s = s.replace('import { useDeviceHeading } from "@/hooks/use-device-heading";\n', 'import { useDeviceHeading } from "@/hooks/use-device-heading";\nimport { usePrayerSettings } from "@/lib/prayer-settings";\nimport { useThemeContext } from "@/lib/theme-provider";\n');
+s = s.replace('  const [english, setEnglish] = useState(false);\n', '  const prayerSettings = usePrayerSettings();\n  const { colorScheme } = useThemeContext();\n  const english = prayerSettings.language === "en";\n  const dark = colorScheme === "dark";\n');
+s = s.replace('containerClassName="bg-[#f4f7f3]"', 'containerClassName={dark ? "bg-[#10221d]" : "bg-[#f4f7f3]"}');
+s = s.replace('<Text style={styles.title}>{english ? "Qibla Compass" : "بوصلة القبلة"}</Text>', '<Text style={[styles.title, dark && styles.darkText]}>{english ? "Qibla Compass" : "بوصلة القبلة"}</Text>');
+s = s.replace('onPress={() => setEnglish((value) => !value)}', 'onPress={() => prayerSettings.setLanguage(english ? "ar" : "en")}');
+s = s.replace('<View style={styles.readingRow}>', '<View style={[styles.readingRow, dark && styles.darkSurface]}>');
+s = s.replace('style={styles.readingLabel}>{english ? "Qibla bearing"', 'style={[styles.readingLabel, dark && styles.darkMuted]}>{english ? "Qibla bearing"');
+s = s.replace('style={styles.readingLabel}>{english ? "To Makkah"', 'style={[styles.readingLabel, dark && styles.darkMuted]}>{english ? "To Makkah"');
+s = s.replace('style={({ pressed }) => [styles.locationButton, pressed && styles.pressed]}', 'style={({ pressed }) => [styles.locationButton, dark && styles.darkSurface, pressed && styles.pressed]}');
+s = s.replace('content: { paddingTop: 18, paddingBottom: 35 }, headerRow:', 'content: { paddingTop: 18, paddingBottom: 35 }, darkText: { color: "#eaf5ed" }, darkMuted: { color: "#a7bcb1" }, darkSurface: { backgroundColor: "#1c362d", borderColor: "#315446" }, headerRow:');
+fs.writeFileSync(path, s);

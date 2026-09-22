@@ -8,6 +8,13 @@ const CACHE_PREFIX = "hijri-prayer-api-v1:";
 const API_METHODS: Record<PrayerMethod, number> = { standard: 3, ummAlQura: 4, mwl: 3, egyptian: 5 };
 
 export function gregorianToHijri(date = new Date()) {
+  try {
+    const parts = new Intl.DateTimeFormat("en-US-u-ca-islamic-umalqura", { day: "numeric", month: "numeric", year: "numeric" }).formatToParts(date);
+    const values = Object.fromEntries(parts.filter((part) => part.type === "day" || part.type === "month" || part.type === "year").map((part) => [part.type, Number(part.value)]));
+    if (values.day && values.month && values.year) return { day: values.day, month: values.month, year: values.year };
+  } catch {
+    // Fall through to the arithmetic conversion on runtimes without the Umm al-Qura calendar.
+  }
   const jd = Math.floor(date.getTime() / 86400000 + 2440587.5);
   const l = jd - 1948440 + 10632;
   const n = Math.floor((l - 1) / 10631);
