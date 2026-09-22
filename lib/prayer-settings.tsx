@@ -3,14 +3,9 @@ import { createContext, useContext, useEffect, useMemo, useState, type ReactNode
 
 export type CalculationMethod = "standard" | "ummAlQura" | "mwl" | "egyptian";
 export type LocationMode = "manual" | "current";
-
-export type CityOption = {
-  id: string;
-  nameAr: string;
-  nameEn: string;
-  latitude: number;
-  longitude: number;
-};
+export type AppLanguage = "ar" | "en";
+export type AppTheme = "light" | "dark";
+export type CityOption = { id: string; nameAr: string; nameEn: string; latitude: number; longitude: number };
 
 export const CITY_OPTIONS: CityOption[] = [
   { id: "sanaa", nameAr: "صنعاء، اليمن", nameEn: "Sana'a, Yemen", latitude: 15.3694, longitude: 44.191 },
@@ -19,7 +14,6 @@ export const CITY_OPTIONS: CityOption[] = [
   { id: "cairo", nameAr: "القاهرة، مصر", nameEn: "Cairo, Egypt", latitude: 30.0444, longitude: 31.2357 },
   { id: "dubai", nameAr: "دبي، الإمارات", nameEn: "Dubai, UAE", latitude: 25.2048, longitude: 55.2708 },
 ];
-
 export const CALCULATION_METHODS: { id: CalculationMethod; nameAr: string; nameEn: string; descriptionAr: string; descriptionEn: string }[] = [
   { id: "standard", nameAr: "الطريقة القياسية", nameEn: "Standard", descriptionAr: "إعداد متوازن لمعظم المواقع", descriptionEn: "Balanced settings for most locations" },
   { id: "ummAlQura", nameAr: "أم القرى", nameEn: "Umm al-Qura", descriptionAr: "مناسبة للمملكة العربية السعودية", descriptionEn: "Recommended for Saudi Arabia" },
@@ -27,43 +21,35 @@ export const CALCULATION_METHODS: { id: CalculationMethod; nameAr: string; nameE
   { id: "egyptian", nameAr: "الهيئة المصرية", nameEn: "Egyptian General Authority", descriptionAr: "مناسبة لمصر وشمال أفريقيا", descriptionEn: "Suitable for Egypt and North Africa" },
 ];
 
-type PrayerSettings = { locationMode: LocationMode; city: CityOption; method: CalculationMethod };
-type SettingsContextValue = PrayerSettings & { hydrated: boolean; selectCity: (city: CityOption) => void; selectMethod: (method: CalculationMethod) => void; useCurrentLocation: (city: CityOption) => void };
+type PrayerSettings = { locationMode: LocationMode; city: CityOption; method: CalculationMethod; language: AppLanguage; theme: AppTheme; alertsEnabled: boolean; soundEnabled: boolean };
+type SettingsContextValue = PrayerSettings & { hydrated: boolean; selectCity: (city: CityOption) => void; selectMethod: (method: CalculationMethod) => void; useCurrentLocation: (city: CityOption) => void; setLanguage: (language: AppLanguage) => void; setTheme: (theme: AppTheme) => void; setAlertsEnabled: (enabled: boolean) => void; setSoundEnabled: (enabled: boolean) => void };
 
-const STORAGE_KEY = "hijri-prayer-settings-v1";
-const defaultSettings: PrayerSettings = { locationMode: "manual", city: CITY_OPTIONS[0], method: "standard" };
+const STORAGE_KEY = "hijri-app-settings-v2";
+const defaultSettings: PrayerSettings = { locationMode: "manual", city: CITY_OPTIONS[0], method: "standard", language: "ar", theme: "light", alertsEnabled: true, soundEnabled: true };
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
 export function PrayerSettingsProvider({ children }: { children: ReactNode }) {
   const [settings, setSettings] = useState<PrayerSettings>(defaultSettings);
   const [hydrated, setHydrated] = useState(false);
-
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((value) => {
       if (value) {
-        try { setSettings({ ...defaultSettings, ...JSON.parse(value) }); } catch { /* use defaults */ }
+        try { setSettings({ ...defaultSettings, ...JSON.parse(value) }); } catch { /* defaults */ }
       }
     }).finally(() => setHydrated(true));
   }, []);
-
-  const persist = (next: PrayerSettings) => {
-    setSettings(next);
-    AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => undefined);
-  };
-
+  const persist = (next: PrayerSettings) => { setSettings(next); AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(next)).catch(() => undefined); };
   const value = useMemo<SettingsContextValue>(() => ({
     ...settings,
     hydrated,
     selectCity: (city) => persist({ ...settings, city, locationMode: "manual" }),
     selectMethod: (method) => persist({ ...settings, method }),
     useCurrentLocation: (city) => persist({ ...settings, city, locationMode: "current" }),
+    setLanguage: (language) => persist({ ...settings, language }),
+    setTheme: (theme) => persist({ ...settings, theme }),
+    setAlertsEnabled: (alertsEnabled) => persist({ ...settings, alertsEnabled }),
+    setSoundEnabled: (soundEnabled) => persist({ ...settings, soundEnabled }),
   }), [settings, hydrated]);
-
   return <SettingsContext.Provider value={value}>{children}</SettingsContext.Provider>;
 }
-
-export function usePrayerSettings() {
-  const context = useContext(SettingsContext);
-  if (!context) throw new Error("usePrayerSettings must be used inside PrayerSettingsProvider");
-  return context;
-}
+export function usePrayerSettings() { const context = useContext(SettingsContext); if (!context) throw new Error("usePrayerSettings must be used inside PrayerSettingsProvider"); return context; }
